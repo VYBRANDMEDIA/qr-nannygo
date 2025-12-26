@@ -3,7 +3,7 @@ const { Redis } = require('@upstash/redis');
 exports.handler = async (event) => {
   try {
     const code = event.queryStringParameters.code;
-    if (!code) return { statusCode: 400, body: 'Invalid code' };
+    if (!code) return { statusCode: 400, body: 'No code' };
 
     const redis = new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL,
@@ -11,16 +11,13 @@ exports.handler = async (event) => {
     });
 
     const data = await redis.get(`qr:${code}`);
-    if (!data) return { statusCode: 404, body: 'QR code not found' };
+    if (!data) return { statusCode: 404, body: 'Not found' };
 
-    const qrcode = JSON.parse(data);
-    qrcode.scan_count = (qrcode.scan_count || 0) + 1;
-    await redis.set(`qr:${code}`, JSON.stringify(qrcode));
+    const qr = JSON.parse(data);
+    qr.scan_count = (qr.scan_count || 0) + 1;
+    await redis.set(`qr:${code}`, JSON.stringify(qr));
 
-    return {
-      statusCode: 302,
-      headers: { 'Location': qrcode.destination_url, 'Cache-Control': 'no-cache' }
-    };
+    return { statusCode: 302, headers: { 'Location': qr.destination_url } };
   } catch (error) {
     return { statusCode: 500, body: 'Error' };
   }
