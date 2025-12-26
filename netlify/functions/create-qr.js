@@ -1,62 +1,27 @@
-const { getStore } = require('@netlify/blobs');
+const { Redis } = require('@upstash/redis');
 
-function generateCode() {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
-}
-
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: 'Not allowed' }) };
   }
 
   try {
-    const { name, url } = JSON.parse(event.body);
-
-    if (!name || !url) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Name and URL are required' })
-      };
-    }
-
-    const store = getStore({
-      name: 'qrcodes',
-      siteID: process.env.SITE_ID,
-      token: process.env.NETLIFY_TOKEN || context.netlifyToken
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
     });
-    
-    const code = generateCode();
 
-    const qrData = {
-      code: code,
-      name: name,
-      destination_url: url,
-      scan_count: 0,
-      created_at: new Date().toISOString()
-    };
+    const { name, url } = JSON.parse(event.body);
+    if (!name || !url) return { statusCode: 400, body: JSON.stringify({ error: 'Name and URL required' }) };
 
-    await store.set(code, JSON.stringify(qrData));
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const qrData = { code, name, destination_url: url, scan_count: 0, created_at: new Date().toISOString() };
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        code: code,
-        trackableUrl: `/r/${code}`
-      })
-    };
+    await redis.set(`qr:${code}`, JSON.stringify(qrData));
+    await redis.sadd('qr:all', code);
 
+    return { statusCode: 200, body: JSON.stringify({ code }) };
   } catch (error) {
-    console.error('Error:', error);
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: error.message })
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
   }
 };
