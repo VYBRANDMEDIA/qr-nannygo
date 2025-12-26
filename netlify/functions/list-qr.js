@@ -1,36 +1,20 @@
-const { getStore } = require('@netlify/blobs');
+const { Redis } = require('@upstash/redis');
 
-exports.handler = async (event, context) => {
+exports.handler = async () => {
   try {
-    const store = getStore({
-      name: 'qrcodes',
-      siteID: process.env.SITE_ID,
-      token: process.env.NETLIFY_TOKEN || context.netlifyToken
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
     });
-    
-    const { blobs } = await store.list();
-    
-    const qrcodes = await Promise.all(
-      blobs.map(async (blob) => {
-        const data = await store.get(blob.key);
-        return JSON.parse(data);
-      })
-    );
 
-    qrcodes.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const codes = await redis.smembers('qr:all') || [];
+    const qrcodes = await Promise.all(codes.map(async (code) => {
+      const data = await redis.get(`qr:${code}`);
+      return data ? JSON.parse(data) : null;
+    }));
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ qrcodes })
-    };
-
+    return { statusCode: 200, body: JSON.stringify({ qrcodes: qrcodes.filter(Boolean) }) };
   } catch (error) {
-    console.error('Error:', error);
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: error.message })
-    };
+    return { statusCode: 500, body: JSON.stringify({ qrcodes: [] }) };
   }
 };
