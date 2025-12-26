@@ -1,0 +1,11 @@
+{
+  "name": "qr-code-generator",
+  "version": "1.0.0",
+  "description": "Trackable QR Code Generator",
+  "scripts": {
+    "build": "echo 'No build needed'"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^10.0.10"
+  }
+}
