@@ -3,24 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator met Tracking</title>
+    <title>QR Code Generator</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1200px; margin: 0 auto; }
         .card {
             background: white;
             border-radius: 16px;
@@ -28,37 +21,17 @@
             margin-bottom: 24px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #1a202c;
-            margin-bottom: 8px;
-            font-size: 32px;
-        }
-        .subtitle {
-            color: #718096;
-            margin-bottom: 32px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            color: #2d3748;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
+        h1 { color: #1a202c; margin-bottom: 24px; font-size: 28px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px; }
         input {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s;
         }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+        input:focus { outline: none; border-color: #667eea; }
         button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -68,239 +41,119 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
             width: 100%;
         }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        #qrResult {
-            display: none;
-            text-align: center;
-        }
-        #qrCanvas {
-            margin: 24px auto;
-            border: 4px solid #f7fafc;
-            border-radius: 12px;
-        }
+        button:disabled { opacity: 0.6; }
+        #qrResult { display: none; text-align: center; margin-top: 20px; }
+        #qrCanvas { margin: 20px auto; display: block; }
         .qr-url {
             background: #f7fafc;
             padding: 16px;
             border-radius: 8px;
             word-break: break-all;
             margin: 16px 0;
-            font-family: 'Courier New', monospace;
-            color: #2d3748;
+            font-family: monospace;
         }
-        .download-btn {
-            background: #48bb78;
-            margin-top: 12px;
-        }
-        .download-btn:hover {
-            background: #38a169;
-        }
-        #qrList {
-            display: grid;
-            gap: 16px;
-        }
+        .download-btn { background: #48bb78; margin-top: 12px; }
         .qr-item {
             background: #f7fafc;
             padding: 20px;
             border-radius: 12px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.2s;
         }
-        .qr-item:hover {
-            background: #edf2f7;
-        }
-        .qr-info h3 {
-            color: #2d3748;
-            margin-bottom: 8px;
-        }
-        .qr-info p {
-            color: #718096;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-        .qr-stats {
-            text-align: right;
-        }
-        .scan-count {
-            font-size: 32px;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 4px;
-        }
-        .scan-label {
-            color: #718096;
-            font-size: 14px;
-        }
-        .alert {
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .alert-error {
-            background: #fed7d7;
-            color: #c53030;
-        }
-        .alert-success {
-            background: #c6f6d5;
-            color: #22543d;
-        }
-        .loading {
-            text-align: center;
-            color: #718096;
-            padding: 40px;
-        }
-        .delete-btn {
-            background: #f56565;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 8px;
-        }
-        .delete-btn:hover {
-            background: #e53e3e;
-        }
+        .qr-info h3 { color: #2d3748; margin-bottom: 8px; }
+        .qr-info p { color: #718096; font-size: 14px; margin-bottom: 4px; }
+        .scan-count { font-size: 32px; font-weight: 700; color: #667eea; }
+        .scan-label { color: #718096; font-size: 14px; }
+        .alert { padding: 16px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-error { background: #fed7d7; color: #c53030; }
+        .alert-success { background: #c6f6d5; color: #22543d; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <h1>🎯 QR Code Generator</h1>
-            <p class="subtitle">Maak trackbare QR codes met real-time analytics</p>
-            
+            <h1>🎯 QR Code Generator met Tracking</h1>
             <div id="alertBox"></div>
-            
-            <form id="qrForm">
-                <div class="form-group">
-                    <label for="name">Naam van QR Code</label>
-                    <input type="text" id="name" placeholder="Bijv: Instagram Bio Link" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="url">Bestemmings URL</label>
-                    <input type="url" id="url" placeholder="https://example.com" required>
-                </div>
-                
-                <button type="submit" id="generateBtn">
-                    Genereer QR Code
-                </button>
-            </form>
-            
+            <div class="form-group">
+                <label for="name">Naam</label>
+                <input type="text" id="name" placeholder="Bijv: Instagram" required>
+            </div>
+            <div class="form-group">
+                <label for="url">Bestemmings URL</label>
+                <input type="url" id="url" placeholder="https://example.com" required>
+            </div>
+            <button id="btn" onclick="createQR()">Genereer QR Code</button>
             <div id="qrResult">
                 <canvas id="qrCanvas"></canvas>
-                <div class="qr-url">
-                    <strong>Jouw trackbare URL:</strong><br>
-                    <span id="trackableUrl"></span>
-                </div>
-                <button class="download-btn" onclick="downloadQR()">
-                    📥 Download QR Code
-                </button>
+                <div class="qr-url"><strong>Trackbare URL:</strong><br><span id="trackableUrl"></span></div>
+                <button class="download-btn" onclick="downloadQR()">📥 Download</button>
             </div>
         </div>
-        
         <div class="card">
             <h1>📊 Jouw QR Codes</h1>
-            <p class="subtitle">Real-time scan statistieken</p>
             <div id="qrList"></div>
         </div>
     </div>
-
     <script>
-        const API_URL = window.location.origin;
+        const API = window.location.origin;
+        
+        window.addEventListener('load', function() {
+            loadQRCodes();
+            setInterval(loadQRCodes, 5000);
+        });
 
-        loadQRCodes();
-        setInterval(loadQRCodes, 5000);
-
-        document.getElementById('qrForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
+        async function createQR() {
             const name = document.getElementById('name').value;
             const url = document.getElementById('url').value;
-            const btn = document.getElementById('generateBtn');
+            const btn = document.getElementById('btn');
+            
+            if (!name || !url) { 
+                showAlert('❌ Vul beide velden in!', 'error'); 
+                return; 
+            }
             
             btn.disabled = true;
-            btn.textContent = 'Bezig met genereren...';
+            btn.textContent = 'Bezig...';
             
             try {
-                const response = await fetch('/.netlify/functions/create-qr', {
+                const res = await fetch('/.netlify/functions/create-qr', {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, url })
                 });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
                 
-                console.log('Response status:', response.status);
-                console.log('Response headers:', [...response.headers]);
+                const trackableUrl = `${API}/r/${data.code}`;
                 
-                const responseText = await response.text();
-                console.log('Response text:', responseText);
-                
-                if (!responseText) {
-                    throw new Error('Server gaf geen response');
+                if (typeof QRCode === 'undefined') {
+                    throw new Error('QRCode library niet geladen');
                 }
                 
-                const data = JSON.parse(responseText);
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Er ging iets mis');
-                }
-                
-                const trackableUrl = `${API_URL}/r/${data.code}`;
-                const canvas = document.getElementById('qrCanvas');
-                
-                await QRCode.toCanvas(canvas, trackableUrl, {
-                    width: 300,
-                    margin: 2,
-                    color: {
-                        dark: '#000000',
-                        light: '#FFFFFF'
-                    }
-                });
-                
+                await QRCode.toCanvas(document.getElementById('qrCanvas'), trackableUrl, { width: 300, margin: 2 });
                 document.getElementById('trackableUrl').textContent = trackableUrl;
                 document.getElementById('qrResult').style.display = 'block';
-                
-                showAlert('✅ QR Code succesvol aangemaakt!', 'success');
-                
-                document.getElementById('qrForm').reset();
+                showAlert('✅ QR Code aangemaakt!', 'success');
+                document.getElementById('name').value = '';
+                document.getElementById('url').value = '';
                 loadQRCodes();
-                
             } catch (error) {
-                console.error('Full error:', error);
                 showAlert('❌ ' + error.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Genereer QR Code';
             }
-        });
+        }
 
         async function loadQRCodes() {
             try {
-                const response = await fetch('/.netlify/functions/list-qr');
-                const responseText = await response.text();
-                
-                if (!responseText) {
-                    throw new Error('Geen data ontvangen');
-                }
-                
-                const data = JSON.parse(responseText);
+                const res = await fetch('/.netlify/functions/list-qr');
+                const data = await res.json();
                 const list = document.getElementById('qrList');
-                
                 if (data.qrcodes && data.qrcodes.length > 0) {
                     list.innerHTML = data.qrcodes.map(qr => `
                         <div class="qr-item">
@@ -308,62 +161,34 @@
                                 <h3>${qr.name}</h3>
                                 <p><strong>Code:</strong> ${qr.code}</p>
                                 <p><strong>URL:</strong> ${qr.destination_url}</p>
-                                <p><strong>Trackable:</strong> ${API_URL}/r/${qr.code}</p>
-                                <p><strong>Aangemaakt:</strong> ${new Date(qr.created_at).toLocaleString('nl-NL')}</p>
-                                <button class="delete-btn" onclick="deleteQR('${qr.code}')">🗑️ Verwijder</button>
+                                <p><strong>Track URL:</strong> ${API}/r/${qr.code}</p>
                             </div>
-                            <div class="qr-stats">
+                            <div>
                                 <div class="scan-count">${qr.scan_count || 0}</div>
                                 <div class="scan-label">scans</div>
                             </div>
                         </div>
                     `).join('');
                 } else {
-                    list.innerHTML = '<div class="loading">Nog geen QR codes aangemaakt</div>';
+                    list.innerHTML = '<p style="color:#718096;text-align:center;">Nog geen QR codes</p>';
                 }
-            } catch (error) {
-                console.error('Error loading QR codes:', error);
-            }
-        }
-
-        async function deleteQR(code) {
-            if (!confirm('Weet je zeker dat je deze QR code wilt verwijderen?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/.netlify/functions/delete-qr?code=${code}`, {
-                    method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                    showAlert('✅ QR code verwijderd', 'success');
-                    loadQRCodes();
-                } else {
-                    throw new Error('Kon QR code niet verwijderen');
-                }
-            } catch (error) {
-                showAlert('❌ ' + error.message, 'error');
+            } catch (e) { 
+                console.error(e); 
             }
         }
 
         function downloadQR() {
             const canvas = document.getElementById('qrCanvas');
-            const url = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            const nameInput = document.querySelector('#name');
-            const name = nameInput ? nameInput.value : 'qrcode';
-            link.download = `${name.replace(/\s+/g, '-').toLowerCase()}.png`;
-            link.href = url;
+            link.download = 'qrcode.png';
+            link.href = canvas.toDataURL('image/png');
             link.click();
         }
 
-        function showAlert(message, type) {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-            setTimeout(() => {
-                alertBox.innerHTML = '';
-            }, 5000);
+        function showAlert(msg, type) {
+            const box = document.getElementById('alertBox');
+            box.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+            setTimeout(() => box.innerHTML = '', 5000);
         }
     </script>
 </body>
