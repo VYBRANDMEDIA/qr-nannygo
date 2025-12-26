@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -45,7 +45,7 @@
         }
         button:disabled { opacity: 0.6; }
         #qrResult { display: none; text-align: center; margin-top: 20px; }
-        #qrCanvas { margin: 20px auto; display: block; }
+        #qrCanvas { margin: 20px auto; display: flex; justify-content: center; }
         .qr-url {
             background: #f7fafc;
             padding: 16px;
@@ -88,7 +88,7 @@
             </div>
             <button id="btn" onclick="createQR()">Genereer QR Code</button>
             <div id="qrResult">
-                <canvas id="qrCanvas"></canvas>
+                <div id="qrCanvas"></div>
                 <div class="qr-url"><strong>Trackbare URL:</strong><br><span id="trackableUrl"></span></div>
                 <button class="download-btn" onclick="downloadQR()">📥 Download</button>
             </div>
@@ -100,6 +100,7 @@
     </div>
     <script>
         const API = window.location.origin;
+        let currentQRCode = null;
         
         window.addEventListener('load', function() {
             loadQRCodes();
@@ -130,11 +131,15 @@
                 
                 const trackableUrl = `${API}/r/${data.code}`;
                 
-                if (typeof QRCode === 'undefined') {
-                    throw new Error('QRCode library niet geladen');
-                }
+                const qrDiv = document.getElementById('qrCanvas');
+                qrDiv.innerHTML = '';
                 
-                await QRCode.toCanvas(document.getElementById('qrCanvas'), trackableUrl, { width: 300, margin: 2 });
+                new QRCode(qrDiv, {
+                    text: trackableUrl,
+                    width: 300,
+                    height: 300
+                });
+                
                 document.getElementById('trackableUrl').textContent = trackableUrl;
                 document.getElementById('qrResult').style.display = 'block';
                 showAlert('✅ QR Code aangemaakt!', 'success');
@@ -178,11 +183,13 @@
         }
 
         function downloadQR() {
-            const canvas = document.getElementById('qrCanvas');
-            const link = document.createElement('a');
-            link.download = 'qrcode.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            const qrCanvas = document.querySelector('#qrCanvas canvas');
+            if (qrCanvas) {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = qrCanvas.toDataURL('image/png');
+                link.click();
+            }
         }
 
         function showAlert(msg, type) {
